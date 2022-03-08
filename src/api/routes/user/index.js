@@ -1,8 +1,8 @@
 const {Router} = require('express')
 const router = Router();
+const defaultJs = require('./default');
 
-router.use('/', (req,res,next)=>{
-  res.send('hi');
-})
+
+router.use(defaultJs);
 
 module.exports = router;
