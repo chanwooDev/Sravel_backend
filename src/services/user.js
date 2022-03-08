@@ -1,4 +1,34 @@
 const userModel = require('../models/user.js')
+const crypto = require('crypto');
+
+const createSalt = () =>
+            new Promise((resolve, reject) => {
+                crypto.randomBytes(64, (err, buf) => {
+                    if (err) reject(err);
+                    resolve(buf.toString('base64'));
+                });
+            });
+
+const createHashedPassword = (plainPassword) =>
+new Promise(async (resolve, reject) => {
+    const salt = await createSalt();
+
+    crypto.pbkdf2(plainPassword, salt, 9999, 64, 'sha512', (err, key) => {
+        if (err) reject(err);
+        resolve({ password: key.toString('base64'), salt });
+    });
+});
+
+const makePasswordHashed = (email, password) =>
+    new Promise(async (resolve, reject) => {
+        const result = await userModel.findDefaultByEmail(email)
+        const salt = result.password_salt;
+        crypto.pbkdf2(password, salt, 9999, 64, 'sha512', (err, key) => {
+            if (err) reject(err);
+            resolve(key.toString('base64'));
+        });
+    });
+
 module.exports = {
     
     join: async (userDTO)=>{
@@ -30,6 +60,24 @@ module.exports = {
             console.log('userService Join error: ',e)
             return {result : false, message: e.message};
         }
+    },
+    login : async (userDTO) => {
+        try{
+            if (!userDTO.email) throw new Error('enter your email')
+            if (!userDTO.password) throw new Error('enter your password')
+            let result= await userModel.findDefaultByEmail(userDTO.email);
+            if(!result) throw new Error('email');
+            let rightPassword = result.password;
+            console.log(await makePasswordHashed(userDTO.email, userDTO.password));
+            console.log(rightPassword);
+            if (rightPassword == await makePasswordHashed(userDTO.email, userDTO.password)){
+                return {result: true}
+            }
+            else throw new Error('password');
+        }catch(e){
+            console.log('userService Login error: ',e)
+            return {result : false, message: e.message};
+        }     
     },
     checkEmail : async (userDTO) => {
       try{

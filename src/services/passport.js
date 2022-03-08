@@ -29,3 +29,19 @@ passport.use('local-join', new LocalStrategy({
     }
 ));
 
+passport.use('local-login', new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqToCallback : true
+    }, async (req, email, password, done)=>{
+        userDTO = req.body;
+        try{
+            result = await userService.login(userDTO);
+            if(result.result == false) 
+                throw result;
+            return done(null, {email : userDTO.email});            
+        }catch(e){
+            return done(null, false, {message : e.message});
+        }
+    }
+));
