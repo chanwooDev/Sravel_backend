@@ -20,7 +20,7 @@ passport.use('local-join', new LocalStrategy({
         userDTO = req.body;
         try{
             result = await userService.join(userDTO);
-            if(result.result == false) 
+            if(result.result == false)
                 throw result;
             return done(null, {email : userDTO.email});
         }catch(e){
@@ -39,6 +39,38 @@ passport.use('local-login', new LocalStrategy({
             result = await userService.login(userDTO);
             if(result.result == false) 
                 throw result;
+            return done(null, {email : userDTO.email});            
+        }catch(e){
+            return done(null, false, {message : e.message});
+        }
+    }
+));
+
+// google login & join
+passport.use('google-join', new LocalStrategy({
+    usernameField: 'email',
+    passReqToCallback : true
+    }, async (req, email, password, done)=>{
+        userDTO = req.body;
+        try{
+            result = await userService.googleJoin(userDTO);
+            if(result.result == false) throw result;
+            return done(null, {email : userDTO.email});
+        }catch(e){
+            return done(null, false, {message : e.message});
+        }
+    }
+));
+
+passport.use('google-login', new LocalStrategy({
+    usernameField: 'email',
+    passReqToCallback : true
+    }, async (req, email, password, done)=>{
+        userDTO = req.body;
+        try{
+            result = await userService.googleLogin(userDTO);
+            if(result.result == false) throw result;
+
             return done(null, {email : userDTO.email});            
         }catch(e){
             return done(null, false, {message : e.message});
