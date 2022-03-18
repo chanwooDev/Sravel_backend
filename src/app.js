@@ -5,10 +5,12 @@ const app = express();
 const loaders = require('./loaders');
 
 async function startServer() {
-    await loaders({expressApp:app});    
+    await loaders({expressApp:app});  
+    app.use(express.json());
     app.listen(8000, function(){
         console.log("start!! express server on port 8000");
     });
+    
 }
 
 startServer();

@@ -79,6 +79,40 @@ module.exports = {
             return {result : false, message: e.message};
         }     
     },
+    googleJoin: async (userDTO)=>{
+        try{
+            if (!userDTO.email) throw Error('enter your email');
+            if (!userDTO.nickname) throw Error('enter your nickname');
+            if (!userDTO.sex) throw Error('enter your gender');
+            if (!userDTO.year) throw Error('enter your year');
+            if (!userDTO.month) throw Error('enter your month');
+            if (!userDTO.day) throw Error('enter your day');
+            if (!userDTO.condition_personal_information) throw Error('enter your condition1');
+            if (!userDTO.condition_use) throw Error('enter your condition2');
+            if (userDTO.user_type != "google") throw Error('enter your user_type');
+            
+            let result = await userModel.findByEmail(userDTO.email).catch((err)=>{throw err;});
+            if(result) throw Error('이미 가입한 계정이 존재합니다.');
+            
+            result = await userModel.insert(userDTO);
+            if(!result) throw Error('데이터 베이스 오류입니다. 관리자에게 문의하세요.');
+            return {result : true, email: userDTO.email};
+        }catch(e){
+            console.log('userService Join error: ',e)
+            return {result : false, message: e.message};
+        }
+    },
+    googleLogin : async (userDTO) => {
+        try{
+            if (!userDTO.email) throw new Error('Problem has occurred. Try again.')
+            let result= await userModel.findByEmail(userDTO.email);
+            if(!result) throw new Error('email');
+            return true;
+        }catch(e){
+            console.log('userService Login error: ',e)
+            return {result : false, message: e.message};
+        }     
+    },
     checkEmail : async (userDTO) => {
       try{
         let email = userDTO.email;

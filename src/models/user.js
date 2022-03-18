@@ -4,8 +4,9 @@ module.exports = {
     findByEmail : async (email) => new Promise( async (resolve, reject) => {
         let sql = "select * from user where email = ?"
         let result = await db.query(sql,[email]);
-        if (result.length > 0)
+        if (result.length > 0){
             return resolve(result[0]);
+        }
         else if(result.length == 0)
             return resolve(false);
         return reject(new Error('database error.'));
